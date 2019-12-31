@@ -5,7 +5,7 @@ This Module is in accordance with ```react-native-recording```
 
 ## Getting started
 
-`$ npm install react-native-audio-track --save`
+`$ npm i git://github.com/murat-mehmet/react-native-audio-track.git --save`
 
 ### Mostly automatic installation
 
