@@ -24,7 +24,7 @@ This Module is in accordance with ```react-native-recording```
 #### Android
 
 1. Open up `android/app/src/main/java/[...]/MainActivity.java`
-  - Add `import com.reactlibrary.RNAudioTrackPackage;` to the imports at the top of the file
+  - Add `import com.audiotrack.RNAudioTrackPackage;` to the imports at the top of the file
   - Add `new RNAudioTrackPackage()` to the list returned by the `getPackages()` method
 2. Append the following lines to `android/settings.gradle`:
   	```
