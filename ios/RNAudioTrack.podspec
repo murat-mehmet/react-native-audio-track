@@ -3,10 +3,8 @@ Pod::Spec.new do |s|
   s.name         = "RNAudioTrack"
   s.version      = "1.0.0"
   s.summary      = "RNAudioTrack"
-  s.description  = <<-DESC
-                  RNAudioTrack
-                   DESC
-  s.homepage     = ""
+  s.description  = "RNAudioTrack"
+  s.homepage     = "https://beta.limited"
   s.license      = "MIT"
   # s.license      = { :type => "MIT", :file => "FILE_LICENSE" }
   s.author             = { "author" => "author@domain.cn" }
