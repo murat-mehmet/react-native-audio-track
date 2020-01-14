@@ -6,13 +6,19 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableArray;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.facebook.react.bridge.Callback;
 
+import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.AudioManager;
 import android.media.AudioFormat;
+import android.os.Build;
 import android.util.Base64;
 import android.util.Log;
 
@@ -20,6 +26,7 @@ public class RNAudioTrackModule extends ReactContextBaseJavaModule {
 
     private final ReactApplicationContext reactContext;
     private static AudioTrack audioTrack;
+    private boolean isFloat = false;
 
     int bufferSize = 8192;
 
@@ -39,7 +46,7 @@ public class RNAudioTrackModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void init(ReadableMap options) {
+    public void init(final ReadableMap options) {
         int streamType = AudioManager.STREAM_MUSIC;
         int sampleRateInHz = 44100;
         int channelConfig = AudioFormat.CHANNEL_OUT_MONO;
@@ -51,9 +58,13 @@ public class RNAudioTrackModule extends ReactContextBaseJavaModule {
         ;
         if (options.hasKey("bitsPerChannel")) {
             int bitsPerChannel = options.getInt("bitsPerChannel");
+            isFloat = false;
 
             if (bitsPerChannel == 8) {
                 audioFormat = AudioFormat.ENCODING_PCM_8BIT;
+            } else if (bitsPerChannel == 32) {
+                audioFormat = AudioFormat.ENCODING_PCM_FLOAT;
+                isFloat = true;
             }
         }
         if (options.hasKey("channelsPerFrame")) {
@@ -69,6 +80,10 @@ public class RNAudioTrackModule extends ReactContextBaseJavaModule {
         }
         if (options.hasKey("bufferSize")) {
             bufferSize = options.getInt("bufferSize");
+        }
+        if (isFloat) {
+            bufferSize = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_FLOAT);
+            Log.d("recorder", "setting buffer size " + bufferSize);
         }
         audioTrack = new AudioTrack(streamType, sampleRateInHz, channelConfig, audioFormat, bufferSize * 2, mode);
     }
@@ -107,8 +122,20 @@ public class RNAudioTrackModule extends ReactContextBaseJavaModule {
     public void Write(String base64String) {
         byte[] bytesArray = Base64.decode(base64String, Base64.NO_WRAP);
         if (audioTrack != null && bytesArray != null) {
-            short[] buffer = byte2short(bytesArray);
-            audioTrack.write(buffer, 0, bufferSize);
+            if (isFloat && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                float buffer[] = new float[bufferSize / 4];
+                ByteBuffer.wrap(bytesArray).order(ByteOrder.nativeOrder()).asFloatBuffer().get(buffer);
+                try {
+                    audioTrack.write(buffer, 0, buffer.length, AudioTrack.WRITE_BLOCKING);
+                } catch (Exception ignored) {
+                }
+            } else {
+                short[] buffer = byte2short(bytesArray);
+                try {
+                    audioTrack.write(buffer, 0, bufferSize);
+                } catch (Exception ignored) {
+                }
+            }
         }
     }
 
