@@ -81,10 +81,10 @@ public class RNAudioTrackModule extends ReactContextBaseJavaModule {
         if (options.hasKey("bufferSize")) {
             bufferSize = options.getInt("bufferSize");
         }
-        if (isFloat) {
-            bufferSize = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_FLOAT);
-            Log.d("recorder", "setting buffer size " + bufferSize);
-        }
+//        if (isFloat) {
+//            bufferSize = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_FLOAT);
+//            Log.d("recorder", "setting buffer size " + bufferSize);
+//        }
         audioTrack = new AudioTrack(streamType, sampleRateInHz, channelConfig, audioFormat, bufferSize * 2, mode);
     }
 
