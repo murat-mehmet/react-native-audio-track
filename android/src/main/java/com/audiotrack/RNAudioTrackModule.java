@@ -122,7 +122,6 @@ public class RNAudioTrackModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void Write(String base64String) {
         byte[] bytesArray = Base64.decode(base64String, Base64.NO_WRAP);
-        Log.d("recorder", "setting byte array " + bytesArray.length);
         if (audioTrack != null && bytesArray != null) {
             if (isFloat && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
