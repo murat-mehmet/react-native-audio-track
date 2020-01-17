@@ -11,6 +11,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.nio.FloatBuffer;
 
 import com.facebook.react.bridge.Callback;
 
@@ -85,7 +86,7 @@ public class RNAudioTrackModule extends ReactContextBaseJavaModule {
 //            bufferSize = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_FLOAT);
 //            Log.d("recorder", "setting buffer size " + bufferSize);
 //        }
-        audioTrack = new AudioTrack(streamType, sampleRateInHz, channelConfig, audioFormat, bufferSize * 2, mode);
+        audioTrack = new AudioTrack(streamType, sampleRateInHz, channelConfig, audioFormat, bufferSize, mode);
     }
 
     @ReactMethod
@@ -121,9 +122,12 @@ public class RNAudioTrackModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void Write(String base64String) {
         byte[] bytesArray = Base64.decode(base64String, Base64.NO_WRAP);
+        Log.d("recorder", "setting byte array " + bytesArray.length);
         if (audioTrack != null && bytesArray != null) {
             if (isFloat && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                float buffer[] = new float[bufferSize / 4];
+
+                FloatBuffer fb = ByteBuffer.wrap(bytesArray).asFloatBuffer();
+                float[] buffer = new float[fb.capacity()];
                 ByteBuffer.wrap(bytesArray).order(ByteOrder.nativeOrder()).asFloatBuffer().get(buffer);
                 try {
                     audioTrack.write(buffer, 0, buffer.length, AudioTrack.WRITE_BLOCKING);
